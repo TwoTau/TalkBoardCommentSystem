@@ -1,16 +1,11 @@
 Messages:{{ chatList | length }}
 
 {% for chat in chatList %}
-<div data-commentid="{{ loop.index }}" data-parentid="{{ chat.parentId }}">
+<div data-commentid="{{ loop.index }}">
     <a>{{ chat.username }}</a>
     <time>{{ chat.date }}</time>
     <div>
         {{ chat.content }}
     </div>
-    {% if chat.parentId == "0" %}
-        <button>Reply</button>
-    {% endif %}
-    <span class="upvote">^</span><span class="downvote">v</span><span class="totalPoints">0</span>
-    <button class="flag">F</button>
 </div>
 {% endfor %}

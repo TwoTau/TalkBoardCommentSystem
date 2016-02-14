@@ -18,11 +18,9 @@ chat = []
 # /
 class MainPage(webapp2.RequestHandler):
     def get(self):
-        token = rand(1000000, 9999999)
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render({
-            "randomNumber": rand(100, 999),
-            "token": token
+            "randomNumber": rand(100, 999)
         }))
 
 # /send
@@ -31,7 +29,6 @@ class ReceiveMessage(webapp2.RequestHandler):
         now = (datetime.now()).strftime("%x %I:%M:%S %p")
         chat.append({
             "username": self.request.get("username"),
-            "parentId": self.request.get("parentMessage"),
             "date": now,
             "content": self.request.get("message")
         });

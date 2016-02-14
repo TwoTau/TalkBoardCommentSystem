@@ -18,9 +18,9 @@ chat = []
 # /
 class MainPage(webapp2.RequestHandler):
     def get(self):
-        template = JINJA_ENVIRONMENT.get_template('index.html')
+        template = JINJA_ENVIRONMENT.get_template('lecture-student-view.html')
         self.response.write(template.render({
-            "randomNumber": rand(100, 999)
+            "token": rand(1000000, 9999999)
         }))
 
 # /send

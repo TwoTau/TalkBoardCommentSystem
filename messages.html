@@ -1,11 +1,14 @@
 Messages:{{ chatList | length }}
 
 {% for chat in chatList %}
-<div data-commentid="{{ loop.index }}">
+<!-- <div data-commentid="{{ loop.index }}">
     <a>{{ chat.username }}</a>
     <time>{{ chat.date }}</time>
     <div>
         {{ chat.content }}
     </div>
+</div> -->
+<div data-username="{{ chat.username }}" data-timeSent="{{ chat.date }}">
+    {{ chat.content }}
 </div>
 {% endfor %}

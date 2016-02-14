@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Talkboard</title>
+    <script src='/_ah/channel/jsapi'></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <style>
+        button {
+            background: #ccc;
+            border: 0;
+        }
+        #allComments > div {
+            border-left: 3px solid #333;
+            border-bottom: 3px solid #333;
+        }
+        #allComments > div:not([data-parentid="0"]) { /* children of parent comments */
+            margin-left: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>{{ randomNumber }}</h1>
+
+    <div id="allComments"></div>
+
+    <form id="sendMessage">
+        <input id="message" placeholder="Ask a question..." name="message">
+        <input type="submit" value="Send">
+    </form>
+
+    <script>
+
+        var messageCount = 0;
+        var messageText = "";
+
+        function sendMessage(username, message, parentMessage) {
+            $.ajax({
+                method: "POST",
+                url: "send",
+                data: {
+                    "username": username,
+                    "parentMessage": parentMessage,
+                    "message": message
+                }
+            }).done(function() {
+                console.log(message + " sent.");
+            });
+        }
+
+        $(function() {
+            var loadChat = function() {
+                $.ajax({
+                    url: "messages",
+                    cache: false
+                }).done(function(html) {
+                    var newMessagesCount = parseInt(html.substr(9,3));
+
+                    allDivs = html.split("<div data-commentid=");
+                    allDivs.shift(0);
+
+                    for(var i = messageCount; i < newMessagesCount; i++) {
+                        var newCommentText = "<div data-commentid=" + allDivs[i];
+                        var newComment = $(newCommentText);
+
+                        var parentid = newComment.data("parentid");
+                        if(parentid === 0) { // if a top level comment
+                            $("#allComments").append(newComment);
+                        } else { // if a reply to a comment
+                            $("#allComments > div[data-commentid='" + parentid + "']").after(newComment);
+                        }
+                    }
+
+                    messageCount = newMessagesCount;
+                    messageText = html;
+                });
+            };
+
+            $("#sendMessage").on("submit", function(e) {
+                e.preventDefault();
+
+                var username = "Usernamius";
+                var message = $("#message").val();
+                var parentMessage = 0;
+                sendMessage(username, message, parentMessage);
+                $("#message").val("");
+            });
+
+            $(document).on("click", "#allComments div .upvote", function() {
+                alert("upvoted!");
+                var points = $(this).siblings(".totalPoints");
+                points.html(parseInt(points.html()) + 1);
+            });
+            $(document).on("click", "#allComments div .downvote", function() {
+                alert("downvoted!");
+                var points = $(this).siblings(".totalPoints");
+                points.html(parseInt(points.html()) - 1);
+            });
+
+            $(document).on("click", "#allComments button:not(.flag)", function() { // on reply button click
+                var parentComment = $(this).parent();
+                var parentId = parentComment.data("commentid");
+
+                var replyBox = $("<div>", {class: "reply"});
+                replyBox.html("<form id='replyMessage'><input id='reply' placeholder='Reply...' name='message'><input type='submit' value='Reply'></form>");
+                replyBox.on("submit", function(e) {
+                    e.preventDefault();
+
+                    var username = "Usernamius";
+                    var message = $("#reply").val();
+8
+                    sendMessage(username, message, parentId);
+                    $(this).remove();
+                });
+
+                parentComment.append(replyBox);
+
+            });
+
+            loadChat();
+            window.setInterval(loadChat, 1000); // checks 5 times a second
+        });
+    </script>
+</body>
+
+</html>
